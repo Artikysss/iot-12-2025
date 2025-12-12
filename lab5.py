@@ -2,7 +2,6 @@ from enum import Enum
 from datetime import datetime, date
 import sys
 
-# 1. Enum для жанрів фільмів
 class MovieType(Enum):
     ACTION = "Бойовик"
     COMEDY = "Комедія"
@@ -10,33 +9,24 @@ class MovieType(Enum):
     FANTASY = "Фентезі"
     HORROR = "Жахи"
 
-# 2. Клас Movie
 class Movie:
     def __init__(self, movie_id: int, title: str, movie_type: MovieType, 
                  ranking: float, release_date: str, character_number: int, 
                  ticket_price: float, comment: str):
-        """Конструктор класу Movie"""
+        """class Movie"""
         self._id = movie_id
         self._title = title
         self._movie_type = movie_type
         self._ranking = ranking
-        # Конвертуємо рядок у об'єкт дати (формат РРРР-ММ-ДД)
         self._release_date = datetime.strptime(release_date, "%Y-%m-%d").date()
         self._character_number = character_number
         self._ticket_price = ticket_price
         self._comment = comment
-        
-        # Словник для збереження продажів квитків: {дата: кількість_проданих}
-        # Це потрібно для функції calculateProfit
+
         self._sales_history = {}
         print(f"Конструктор: Фільм '{self._title}' створено.")
 
-    def __del__(self):
-        """Деструктор класу Movie"""
-        # У Python деструктор викликається при збірці сміття
-        print(f"Деструктор: Фільм '{self._title}' видалено з пам'яті.")
 
-    # --- Функції доступу (Getters & Setters) ---
     @property
     def title(self):
         return self._title
@@ -56,10 +46,8 @@ class Movie:
     @property
     def ticket_price(self):
         return self._ticket_price
-    
-    # --- Методи ---
+  
     def add_sales(self, day: str, quantity: int):
-        """Метод для імітації продажу квитків на певну дату"""
         sales_date = datetime.strptime(day, "%Y-%m-%d").date()
         if sales_date in self._sales_history:
             self._sales_history[sales_date] += quantity
@@ -67,21 +55,19 @@ class Movie:
             self._sales_history[sales_date] = quantity
 
     def get_sales_for_day(self, day: date) -> int:
-        """Повертає кількість проданих квитків за день"""
         return self._sales_history.get(day, 0)
 
     def __str__(self):
-        """Виведення інформації на екран"""
+        """showing info"""
         return (f"ID: {self._id} | Назва: {self._title} | Жанр: {self._movie_type.value} | "
                 f"Рейтинг: {self._ranking} | Дата: {self._release_date} | "
                 f"Ціна: {self._ticket_price} грн")
-
-# 3. Клас Cinema
+        
 class Cinema:
     def __init__(self, name: str, location: str):
         self._name = name
         self._location = location
-        self._movies = [] # Список фільмів
+        self._movies = []
         print(f"Кінотеатр '{self._name}' відкрито за адресою {self._location}.")
 
     def __del__(self):
@@ -96,7 +82,6 @@ class Cinema:
             print(movie)
         print("-" * 40)
 
-    # Функція підрахунку прибутку (Movie*, day)
     def calculate_profit(self, movie: Movie, day_str: str):
         target_date = datetime.strptime(day_str, "%Y-%m-%d").date()
         tickets_sold = movie.get_sales_for_day(target_date)
@@ -105,7 +90,6 @@ class Cinema:
         print(f"Прибуток фільму '{movie.title}' за {target_date}: {profit} грн ({tickets_sold} квитків).")
         return profit
 
-    # Метод вибору фільму за параметрами (наприклад: жанр та мінімальний рейтинг)
     def recommend_movie(self, preferred_type: MovieType, min_ranking: float):
         print(f"\nПошук фільмів (Жанр: {preferred_type.value}, Рейтинг > {min_ranking})...")
         found = False
@@ -116,13 +100,10 @@ class Cinema:
         if not found:
             print(" -> На жаль, підходящих фільмів не знайдено.")
 
-    # Сортування фільмів за датою випуску
     def sort_movies_by_date(self):
         print("\nСортування фільмів за датою релізу...")
-        # Використовуємо lambda функцію для доступу до дати
         self._movies.sort(key=lambda x: x.release_date) 
 
-# 4. Метод Main
 def main():
     # Створення об'єкту кінотеатру
     my_cinema = Cinema("Multiplex", "Київ, вул. Хрещатик, 1")
@@ -133,33 +114,28 @@ def main():
     m3 = Movie(3, "Інтерстеллар", MovieType.FANTASY, 9.5, "2014-11-07", 8, 200.0, "Наукова фантастика")
     m4 = Movie(4, "Дюна 2", MovieType.FANTASY, 8.9, "2024-03-01", 15, 250.0, "Новинка")
 
-    # Додавання фільмів у кінотеатр
     my_cinema.add_movie(m1)
     my_cinema.add_movie(m2)
     my_cinema.add_movie(m3)
     my_cinema.add_movie(m4)
 
-    # Виведення початкового списку
     my_cinema.display_schedule()
 
-    # Сортування за датою та виведення оновленого списку
     my_cinema.sort_movies_by_date()
     my_cinema.display_schedule()
 
-    # Імітація продажів квитків для підрахунку прибутку
     target_day = "2024-12-12"
     m3.add_sales(target_day, 50) # Продали 50 квитків на Інтерстеллар
     m4.add_sales(target_day, 100) # Продали 100 квитків на Дюну
-
-    # Підрахунок прибутку
+    
     print("\n--- Фінансовий звіт ---")
     my_cinema.calculate_profit(m3, target_day)
     my_cinema.calculate_profit(m4, target_day)
 
-    # Вибір фільму за критеріями
     my_cinema.recommend_movie(MovieType.FANTASY, 9.0)
 
     print("\nЗавершення роботи програми...")
 
 if __name__ == "__main__":
     main()
+
